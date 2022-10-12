@@ -1,0 +1,48 @@
+# use epsilon greedy action selector
+action_selector: "epsilon_greedy"
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 100000
+
+
+runner: "episode"
+batch_size_run: 1
+buffer_size: 5000
+batch_size: 32
+
+# update the target network every {} episodes
+target_update_interval: 200
+t_max: 1050000
+
+# use the Q_Learner to train
+agent_output_type: "q"
+learner: "restq_learner_central"
+double_q: True
+mixer: "qmix"
+mixing_embed_dim: 32
+hypernet_layers: 2
+hypernet_embed: 64
+
+
+
+hysteretic_qmix: False # False -> CW-QMIX, True -> OW-QMIX  #should be False
+central_mixing_embed_dim: 128
+central_action_embed: 1
+central_mac: "basic_central_mac"
+central_agent: "central_rnn"
+central_rnn_hidden_dim: 64
+central_mixer: "ff"
+
+td_lambda: 0.6
+lr: 0.001
+resq_version: "v3"
+
+central_loss: 1
+noopt_loss: 1
+qmix_loss: 1
+condition_loss: "mse"
+condition_loss_delta: 0.001
+max_second_gap: 0
+condition: "max_action"
+residual_negative_abs: True  #if false, it use MSE Loss to implement the inequality condition
+name: "ResQ"
