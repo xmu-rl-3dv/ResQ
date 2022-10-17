@@ -3,8 +3,6 @@ from components.episode_buffer import EpisodeBatch
 from modules.mixers.qtran import QTranBase
 import torch as th
 from torch.optim import RMSprop, Adam
-from envs.one_step_matrix_game import print_matrix_status
-
 
 class QLearner:
     def __init__(self, mac, scheme, logger, args):
@@ -151,11 +149,6 @@ class QLearner:
                 self.logger.log_stat("v_mean", (vs.sum().item()/mask_elems), t_env)
                 self.logger.log_stat("agent_indiv_qs", ((chosen_action_qvals * mask).sum().item()/(mask_elems * self.args.n_agents)), t_env)
             self.log_stats_t = t_env
-            if self.args.env.find("one_step_matrix_game")>=0:
-                # if self.args.env_args["map_name"].find("dist")>=0:
-                #     print_matrix_status_distributional(batch, self.mixer, mac_out, mac_hidden_states)
-                # else:
-                print_matrix_status(batch, self.mixer, mac_out, mac_hidden_states)
 
 
     def _update_targets(self):

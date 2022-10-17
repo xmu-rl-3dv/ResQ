@@ -3,7 +3,6 @@ from components.episode_buffer import EpisodeBatch
 from modules.mixers.vdn import VDNMixer
 from modules.mixers.qmix import QMixer
 from utils.rl_utils import build_td_lambda_targets
-from envs.one_step_matrix_game import print_matrix_status
 import torch as th
 from torch.optim import RMSprop, Adam
 import numpy as np
@@ -43,7 +42,6 @@ class QLearner:
         self.train_t = 0
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
-        # print("WTF")
         # Get the relevant quantities
         rewards = batch["reward"][:, :-1]
         actions = batch["actions"][:, :-1]
@@ -82,7 +80,7 @@ class QLearner:
             # Get actions that maximise live Q (for double q-learning)
             mac_out_detach = mac_out.clone().detach()
             mac_out_detach[avail_actions == 0] = -9999999 #[batch_size, times, n_agents, n_actions]
-            t = mac_out_detach[:, 1:].max(dim=3, keepdim=True)#torch的max返回的是一个二元组的tuple，第二个元是indices，第一个元是values
+            t = mac_out_detach[:, 1:].max(dim=3, keepdim=True)
             cur_max_actions = t[1]
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
         else:
@@ -125,10 +123,6 @@ class QLearner:
             self.logger.log_stat("q_taken_mean", (chosen_action_qvals * mask).sum().item()/(mask_elems * self.args.n_agents), t_env)
             self.logger.log_stat("target_mean", (targets * mask).sum().item()/(mask_elems * self.args.n_agents), t_env)
             self.log_stats_t = t_env
-            
-            # print estimated matrix
-            if self.args.env == "one_step_matrix_game":
-                print_matrix_status(batch, self.mixer, mac_out)
 
     def _update_targets(self):
         self.target_mac.load_state(self.mac)
